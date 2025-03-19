@@ -1,5 +1,10 @@
-import { useLocalForage } from './useLocalForage';
-import { LocalForageProvider } from './LocalForageProvider';
-import { dropDataStore, removeDataStoreItems, driver } from './extra';
+import { LocalForageProvider, useLocalForage } from "./context";
+import { DRIVER, dropDataStore, removeDataStoreItems } from "./DataStore";
 
-export { useLocalForage, LocalForageProvider, dropDataStore, removeDataStoreItems, driver };
+export {
+  DRIVER,
+  dropDataStore,
+  LocalForageProvider,
+  removeDataStoreItems,
+  useLocalForage,
+};

@@ -1,22 +1,80 @@
-import { useState, useEffect, useContext } from 'react';
-import localForage from 'localforage';
-import { LocalForageContext } from './LocalForageProvider';
-import clientCache from './ClientCache';
+import {
+  createContext,
+  createElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import clientCache from "./ClientCache";
+import type {
+  ExtraOptions,
+  LocalForageContextProps,
+  LocalForageProviderProps,
+} from "./type";
+import { getClient, isBrowser } from "./utils";
 
-import { ExtraOptions } from './type';
-import { isBrowser } from './utils';
+/**
+ * The context for the LocalForageProvider
+ * @type {React.Context<LocalForageContextProps>}
+ */
+export const LocalForageContext = createContext<LocalForageContextProps>({
+  config: {},
+  initialValues: {},
+});
 
-export function useLocalForage<TState = any>(key: string, options?: ExtraOptions<TState>) {
+/**
+ * The provider for the LocalForageContext
+ * @param {LocalForageProviderProps} props - The props for the LocalForageProvider
+ * @returns {React.ReactNode} The provider for the LocalForageContext
+ */
+export const LocalForageProvider = ({
+  children,
+  config = {},
+  initialValues = {},
+}: LocalForageProviderProps) => {
+  // memoize the config and initialValues
+  const memoizedConfig = useMemo(() => config, [config]);
+  const memoizedInitialValues = useMemo(() => initialValues, [initialValues]);
+
+  // memoize the provider value
+  const memoizedProviderValue = useMemo(
+    () => ({
+      config: memoizedConfig,
+      initialValues: memoizedInitialValues,
+    }),
+    [memoizedConfig, memoizedInitialValues],
+  );
+
+  return createElement(
+    LocalForageContext.Provider,
+    {
+      value: memoizedProviderValue,
+    },
+    children,
+  );
+};
+
+export function useLocalForage<TState = any>(
+  key: string,
+  options?: ExtraOptions<TState>,
+) {
   const { defaultValue, target } = options ?? {};
   // determine whether it is a browser environment, if not, return the default value
   if (!isBrowser) {
-    return { value: defaultValue, set: () => {}, remove: () => {}, loading: true };
+    return {
+      value: defaultValue,
+      set: () => {},
+      remove: () => {},
+      loading: true,
+    };
   }
 
   const { config, initialValues } = useContext(LocalForageContext);
   // If defaultValue is set, it will override the initial value of the Provider
-  const globalKeyValue = initialValues?.[key];
-  const [value, setValue] = useState<TState>(defaultValue ?? globalKeyValue);
+  const [value, setValue] = useState<TState>(
+    defaultValue ?? initialValues?.[key],
+  );
 
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -83,10 +141,10 @@ export function useLocalForage<TState = any>(key: string, options?: ExtraOptions
         });
     };
 
-    clientCache.addEventListener('change', handleStorageChange);
+    clientCache.addEventListener("change", handleStorageChange);
 
     return () => {
-      clientCache.removeEventListener('change', handleStorageChange);
+      clientCache.removeEventListener("change", handleStorageChange);
     };
   }, []);
 
@@ -98,19 +156,4 @@ export function useLocalForage<TState = any>(key: string, options?: ExtraOptions
   };
 
   return { value, set, remove, loading };
-}
-
-function getClient(config: LocalForageOptions, target?: LocalForageOptions) {
-  let cache: LocalForage = localForage;
-  let configString = JSON.stringify(config);
-  if (!clientCache.hasCache(configString)) {
-    clientCache.addCache(configString, localForage.createInstance(config));
-  }
-  let targetString = JSON.stringify(target);
-  if (!!targetString && clientCache.hasCache(targetString)) {
-    cache = clientCache.getCache(targetString) as LocalForage;
-  } else {
-    cache = clientCache.getCache(configString) as LocalForage;
-  }
-  return cache;
 }
