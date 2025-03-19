@@ -1,3 +1,10 @@
+# [1.0.0-dev.2](https://github.com/chenmijiang/rc-localforage/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2025-03-19)
+
+
+### Bug Fixes
+
+* update package.json scripts for build and husky integration ([0b87d2c](https://github.com/chenmijiang/rc-localforage/commit/0b87d2cbe7b9aadb821ed88b17def9c3af91a389))
+
 # 1.0.0-dev.1 (2025-03-19)
 
 
