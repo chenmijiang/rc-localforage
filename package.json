@@ -18,6 +18,10 @@
   },
   "author": "chenmijiang",
   "homepage": "https://github.com/chenmijiang/rc-localforage",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chenmijiang/rc-localforage.git"
+  },
   "license": "ISC",
   "keywords": [
     "localstorage",
