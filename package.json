@@ -14,13 +14,15 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "prepare": "husky install"
+    "prepare": "npm run build",
+    "postinstall": "husky",
+    "prepublishOnly": "npm run rebuild"
   },
   "author": "chenmijiang",
   "homepage": "https://github.com/chenmijiang/rc-localforage",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chenmijiang/rc-localforage.git"
+    "url": "git+https://github.com/chenmijiang/rc-localforage.git"
   },
   "license": "ISC",
   "keywords": [
