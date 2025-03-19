@@ -142,6 +142,16 @@ class ClientCache {
       });
     }
   }
+
+  /**
+   * Clears all cache instances
+   * @public
+   * @returns {void}
+   */
+  public clear(): void {
+    this._cache.clear();
+    this.triggerEvent("change");
+  }
 }
 
 export default ClientCache.getInstance();

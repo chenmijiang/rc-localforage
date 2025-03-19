@@ -22,3 +22,10 @@ export type ExtraOptions<T> = {
   errorSetHandler?: (err: any) => void;
   errorGetHandler?: (err: any) => void;
 };
+
+export interface UseLocalForageResult<T> {
+  value: T | undefined;
+  set: (val: T) => void;
+  remove: () => void;
+  loading: boolean;
+}

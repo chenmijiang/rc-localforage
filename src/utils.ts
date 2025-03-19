@@ -19,22 +19,22 @@ export function getClient(
 ) {
   // Convert config objects to strings to use as cache keys
   let configString = JSON.stringify(config);
-  let targetString = JSON.stringify(target);
+  let targetString = target ? JSON.stringify(target) : '';
 
   // Target config takes precedence if provided
-  if (!!targetString) {
+  if (target && Object.keys(target).length > 0) {
     // Check if instance already exists in cache
     if (clientCache.hasCache(targetString)) {
       return clientCache.getCache(targetString) as LocalForage;
     }
     // Create new instance with target config and cache it
-    const newInstance = localForage.createInstance(target!);
+    const newInstance = localForage.createInstance(target);
     clientCache.addCache(targetString, newInstance);
     return newInstance;
   }
 
-  // Use provided config if no target and config exists
-  if (!!configString) {
+  // Use provided config if no target and config has properties
+  if (Object.keys(config).length > 0) {
     // Check if instance already exists in cache
     if (clientCache.hasCache(configString)) {
       return clientCache.getCache(configString) as LocalForage;

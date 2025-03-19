@@ -11,6 +11,7 @@ import type {
   ExtraOptions,
   LocalForageContextProps,
   LocalForageProviderProps,
+  UseLocalForageResult,
 } from "./type";
 import { getClient, isBrowser } from "./utils";
 
@@ -58,13 +59,13 @@ export const LocalForageProvider = ({
 export function useLocalForage<TState = any>(
   key: string,
   options?: ExtraOptions<TState>,
-) {
+): UseLocalForageResult<TState> {
   const { defaultValue, target } = options ?? {};
   // determine whether it is a browser environment, if not, return the default value
   if (!isBrowser) {
     return {
       value: defaultValue,
-      set: () => {},
+      set: (_val: TState) => {},
       remove: () => {},
       loading: true,
     };
@@ -72,21 +73,22 @@ export function useLocalForage<TState = any>(
 
   const { config, initialValues } = useContext(LocalForageContext);
   // If defaultValue is set, it will override the initial value of the Provider
-  const [value, setValue] = useState<TState>(
-    defaultValue ?? initialValues?.[key],
+  const [value, setValue] = useState<TState | undefined>(
+    defaultValue !== undefined
+      ? defaultValue
+      : (initialValues?.[key] as TState | undefined),
   );
 
   const [loading, setLoading] = useState<boolean>(true);
 
   const set = (val: TState) => {
     const client = getClient(config, target);
+    setLoading(true);
     client
       .setItem(key, val)
-      .then(() => {
-        return client.getItem(key);
-      })
-      .then((val: TState) => {
-        setValue(val);
+      .then(() => client.getItem(key))
+      .then((val) => {
+        setValue(val as TState);
         setLoading(false);
       })
       .catch((err) => {
@@ -102,16 +104,11 @@ export function useLocalForage<TState = any>(
   // initialize the value
   useEffect(() => {
     const client = getClient(config, target);
-    setLoading(true);
     client
-      .getItem<TState>(key)
-      .then((val: any) => {
-        if (val !== null) {
-          setValue(val);
-          setLoading(false);
-        } else {
-          set(value);
-        }
+      .getItem(key)
+      .then((val) => {
+        setValue(val as TState);
+        setLoading(false);
       })
       .catch((err) => {
         setLoading(false);
@@ -121,7 +118,7 @@ export function useLocalForage<TState = any>(
           console.error(err);
         }
       });
-  }, []);
+  }, [key, config, target]);
 
   useEffect(() => {
     let configKey = target ? JSON.stringify(target) : JSON.stringify(config);
@@ -150,10 +147,26 @@ export function useLocalForage<TState = any>(
 
   const remove = () => {
     const client = getClient(config, target);
-    client.removeItem(key).then(() => {
-      setValue(undefined!);
-    });
+    client
+      .removeItem(key)
+      .then(() => {
+        setValue(undefined);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setLoading(false);
+        if (!!options?.errorGetHandler) {
+          options.errorGetHandler(err);
+        } else {
+          console.error(err);
+        }
+      });
   };
 
-  return { value, set, remove, loading };
+  return {
+    value,
+    set,
+    remove,
+    loading,
+  };
 }
