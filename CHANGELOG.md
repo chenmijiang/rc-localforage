@@ -1,3 +1,10 @@
+# [1.0.0-dev.3](https://github.com/chenmijiang/rc-localforage/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2025-03-19)
+
+
+### Bug Fixes
+
+* streamline package.json scripts for husky and rebuild integration ([be3eab0](https://github.com/chenmijiang/rc-localforage/commit/be3eab07ae6f44a1825fdd34f6737cf9b9151a75))
+
 # [1.0.0-dev.2](https://github.com/chenmijiang/rc-localforage/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2025-03-19)
 
 

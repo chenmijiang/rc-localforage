@@ -1,6 +1,6 @@
 {
   "name": "rc-localforage",
-  "version": "1.0.0-dev.2",
+  "version": "1.0.0-dev.3",
   "description": "",
   "main": "./dist/index.js",
   "umd": "./dist/index.umd.js",
